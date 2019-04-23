@@ -94,5 +94,6 @@ for block in file_content_dic:
     ## commit periodically
     if commit_count == len(file_content_dic)//10:
         conn.commit()
+        commit_count = 0
 
 conn.commit()
