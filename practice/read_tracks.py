@@ -99,4 +99,5 @@ for block in file_content_dic:
         commit_count = 0
 
 conn.commit()
+cur.close()
 print('Finished successfully')
