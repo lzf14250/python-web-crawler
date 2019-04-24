@@ -33,4 +33,4 @@ CREATE TABLE Member(
 file_content = json.loads(open(file_path).read())
 
 for ncr in file_content:
-    
+    name, course, role = ncr[0], ncr[1],ncr[2]
