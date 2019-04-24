@@ -1,8 +1,8 @@
 import json
 import sqlite3
 
-db_path = 'C:\\Users\\lzf95\\OneDrive\\Desktop\\PythonPractice\\db1.sqlite' #input('Enter the path of database to write into: ')
-file_path = 'C:\\Users\\lzf95\\OneDrive\\Desktop\\PythonPractice\\roster_data.json' #input('Enter the path of the file to read from: ')
+db_path = input('Enter the path of database to write into: ')
+file_path = input('Enter the path of the file to read from: ')
 conn = sqlite3.connect(db_path)
 cur = conn.cursor()
 commit_count = 0
