@@ -1,8 +1,8 @@
 import sqlite3
 import xml.etree.ElementTree as ET
 
-db_path = 'C:\\Users\\lzf95\\OneDrive\\Desktop\\PythonPractice'
-file_path = 'C:\\Users\\lzf95\\OneDrive\\Desktop\\PythonPractice\\Library.xml'
+db_path = input('Enter the path of target Database to read into: ')
+file_path = input('Enter the path of the Track file to read from: ')
 conn = sqlite3.connect(db_path)
 cur = conn.cursor()
 commit_count = 0
@@ -11,6 +11,7 @@ cur.executescript('''
 DROP TABLE IF EXISTS Artist;
 DROP TABLE IF EXISTS Album;
 DROP TABLE IF EXISTS Genre;
+DROP TABLE IF EXISTS Track;
 
 CREATE TABLE Artist (
     id  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -67,7 +68,8 @@ for block in file_content_dic:
     name, artist, album, length = extr['Name'], extr['Artist'], extr['Album'],extr['Total Time']
     genre, rating, play_count = extr['Genre'], extr['Rating'], extr['Play Count']
 
-    if extr['Name'] is None or extr['Artist'] is None or extr['Album'] is None : 
+    ## continue if any of the parameter is None
+    if not(name and artist and album and length and genre and rating and play_count) : 
         continue
 
     ## isnert the artist name into the Artist table
@@ -81,7 +83,7 @@ for block in file_content_dic:
     album_id = cur.fetchone()[0]
 
     ## insert the genre into Genre table
-    cur.execute('INSERT OT IGNORE INTO Genre (name) VALUES (?)',(genre,))
+    cur.execute('INSERT OR IGNORE INTO Genre (name) VALUES (?)',(genre,))
     cur.execute('SELECT id FROM Genre WHERE name = ?',(genre,))
     genre_id = cur.fetchone()[0]
 
@@ -97,3 +99,4 @@ for block in file_content_dic:
         commit_count = 0
 
 conn.commit()
+print('Finished successfully')
