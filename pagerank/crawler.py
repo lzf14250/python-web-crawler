@@ -2,7 +2,7 @@ import sqlite3
 import ssl
 from urllib.parse import urlparse, urljoin
 from urllib.request import urlopen
-from bs4 import BeautifulSoup as BS
+from bs4 import BeautifulSoup
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -92,9 +92,10 @@ while True:
         ## try open this url
         document = urlopen(url,context=ctx)
         document_code = document.getcode()
+        html_page = document.read()
         
         if document_code != 200:
-            print('Failed to retrieve the page, failed code is: {}'.format(document))
+            print('Failed to retrieve the page, failed code is: {}'.format(document_code))
             cur.execute('UPDATE Pages SET error = ? WHERE url = ?',(document_code, url))
             continue
         
@@ -104,15 +105,16 @@ while True:
             continue
         
         ## the content is OK, start parsing this page
-        cur.execute('UPDATE Pages SET html = ? WHERE url = ?',(document, url))
-        soup = BS(document,'html.parser')
+        cur.execute('UPDATE Pages SET html = ? WHERE url = ?',(html_page, url))
+        soup = BeautifulSoup(html_page,'html.parser')
+        print('%s successfully retrieved, start parsing' % url)
     except KeyboardInterrupt:
         print('Interrupted by the user, STOP program')
         conn.commit()
         break
     except:
         print('Failed to retrive or parse this page, continue to next one.')
-        cur.execute('UPDATE Pages SET error = -1 WHERE url = ?',(url,))
+        cur.execute('UPDATE Pages SET error = -1, html = NULL WHERE url = ?',(url,))
         continue
     
     tags = soup('a')
@@ -140,7 +142,7 @@ while True:
         if not found: continue
 
         ## insert this href into Pages
-        cur.execute('INSERT OR IGNORE INTO Pages (url, html, error) VALUES (?, NULL, 1.0)',(href,))
+        cur.execute('INSERT OR IGNORE INTO Pages (url, html, new_rank) VALUES (?, NULL, 1.0)',(href,))
         cur.execute('SELECT id from Pages WHERE url = ? LIMIT 1',(href,))
         try:
             to_id = cur.fetchone()[0]
@@ -148,7 +150,7 @@ while True:
             print('Could not get the id of this outlink url')
             continue
         ## insert into Links table
-        cur.execute('INSERT OR INGORE INTO Links (from_id, to_id) VALUES (?, ?)',(from_id, to_id))
+        cur.execute('INSERT OR IGNORE INTO Links (from_id, to_id) VALUES (?, ?)',(from_id, to_id))
 
 conn.commit()
 print('Program stop, successfully finished page crawling.')
