@@ -61,11 +61,12 @@ while True:
         commit_count = 0
 
     if(num_to_retr < 1):
-        num_to_retr = int(input('Enter the numbe of websites to retrieve: '))
-        if(num_to_retr < 1):
+        how_many = input('Enter the numbe of websites to retrieve: ')
+        if(len(how_many) < 1):
             print('Quit because no pages setted to retrieve, STOP program.')
             conn.commit()
             break
+        num_to_retr = int(how_many)
     
     num_to_retr -= 1
     commit_count += 1 
