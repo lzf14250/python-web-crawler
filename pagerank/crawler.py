@@ -19,10 +19,10 @@ CREATE TABLE IF NOT EXISTS Pages(
 );
 
 CREATE TABLE IF NOT EXISTS Links(
-    fromn_id INTEGER, to_id INTEGER
+    from_id INTEGER, to_id INTEGER
 );
 
-CREATE TANLE IF NOT EXISTS Webs(
+CREATE TABLE IF NOT EXISTS Webs(
     url TEXT UNIQUE
 )
 ''')
@@ -31,11 +31,11 @@ CREATE TANLE IF NOT EXISTS Webs(
 cur.execute('SELECT id,url FROM Pages ORDER BY id LIMIT 1')
 result = cur.fetchone()
 if result is not None:
-    print('there exists a ')
+    print('there already exists a pagerank application')
 else:
     url = input('Enter a new url to get start pagerank: ')
     ## use the default if input nothing
-    if(len(url) < 1): url = 'https://www.python.org/'
+    if(len(url) < 1): url = 'http://www.dr-chuck.com/'
     ## clean the url 
     if(url.endswith('/')): url = url[:-1]
     if(url.endswith('.html') or url.endswith('.htm')):
@@ -43,7 +43,7 @@ else:
         url = url[:pos]
     if(len(url) > 1):
         cur.execute('INSERT OR IGNORE INTO Pages (url,html,new_rank) VALUES (?, NULL,1.0)',(url,))
-        cur.execute('INSERT OR IGNORE INTO Webs (url) VALUES (?)',(url))
+        cur.execute('INSERT OR IGNORE INTO Webs (url) VALUES (?)',(url,))
 
     conn.commit()
 
