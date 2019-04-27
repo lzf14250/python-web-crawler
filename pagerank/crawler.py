@@ -14,8 +14,8 @@ cur = conn.cursor()
 ## Webs database uesed to store the webpages that we really care
 cur.executescript('''
 CREATE TABLE IF NOT EXISTS Pages(
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    url TEXT UNIQUE, html TEXT, error INTEGER, old_rank REAL, new_rank REAL
+    id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE,
+    html TEXT, error INTEGER, old_rank REAL, new_rank REAL
 );
 
 CREATE TABLE IF NOT EXISTS Links(
@@ -35,7 +35,7 @@ if result is not None:
 else:
     url = input('Enter a new url to get start pagerank: ')
     ## use the default if input nothing
-    if(len(url) < 1): url = 'http://www.dr-chuck.com/'
+    if(len(url) < 1): url = 'http://www.google.com/'
     ## clean the url 
     if(url.endswith('/')): url = url[:-1]
     if(url.endswith('.html') or url.endswith('.htm')):
