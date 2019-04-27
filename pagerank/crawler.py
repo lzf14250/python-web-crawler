@@ -35,7 +35,7 @@ if result is not None:
 else:
     url = input('Enter a new url to get start pagerank: ')
     ## use the default if input nothing
-    if(len(url) < 1): url = 'http://www.google.com/'
+    if(len(url) < 1): url = 'http://www.dr-chuck.com/'
     ## clean the url 
     if(url.endswith('/')): url = url[:-1]
     if(url.endswith('.html') or url.endswith('.htm')):
@@ -98,7 +98,7 @@ while True:
             cur.execute('UPDATE Pages SET error = ? WHERE url = ?',(document_code, url))
             continue
         
-        if document.info().get_content_type != 'text/html':
+        if document.info().get_content_type() != 'text/html':
             print('Ignore this page, the content of it is not text or html.')
             cur.execute('DELETE FROM Pages WHERE url = ?',(url,))
             continue
