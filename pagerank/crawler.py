@@ -11,6 +11,7 @@ ctx.verify_mode = ssl.CERT_NONE
 conn = sqlite3.connect('pagerank.sqlite')
 cur = conn.cursor()
 
+## Webs database uesed to store the webpages that we really care
 cur.executescript('''
 CREATE TABLE IF NOT EXISTS Pages(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -43,7 +44,14 @@ else:
     if(len(url) > 1):
         cur.execute('INSERT OR IGNORE INTO Pages (url,html,new_rank) VALUES (?, NULL,1.0)',(url,))
         cur.execute('INSERT OR IGNORE INTO Webs (url) VALUES (?)',(url))
+
     conn.commit()
+
+## Webs list used to store the websites we care
+websites = []
+cur.execute('SELECT url FROM Webs')
+for url in cur:
+    websites.append(str(url[0]))
 
 num_to_retr = 0
 commit_count = 0
@@ -86,7 +94,7 @@ while True:
         
         if document_code != 200:
             print('Failed to retrieve the page, failed code is: {}'.format(document))
-            cur.execute('UPDATE Pages SET error = ? WHERE url = ?',(document_code,url))
+            cur.execute('UPDATE Pages SET error = ? WHERE url = ?',(document_code, url))
             continue
         
         if document.info().get_content_type != 'text/html':
@@ -95,6 +103,8 @@ while True:
             continue
         
         ## the content is OK, start parsing this page
+        cur.execute('UPDATE Pages SET html = ? WHERE url = ?',(document, url))
+        soup = BS(document,'html.parser')
     except KeyboardInterrupt:
         print('Interrupted by the user, STOP program')
         conn.commit()
@@ -103,3 +113,41 @@ while True:
         print('Failed to retrive or parse this page, continue to next one.')
         cur.execute('UPDATE Pages SET error = -1 WHERE url = ?',(url,))
         continue
+    
+    tags = soup('a')
+    ## clean the outlink in this page
+    for tag in tags:
+        href = tag.get('href', None)
+        if href is None: 
+            print('No outlink found in this page: {}'.format(url))
+            continue
+        ## in case of href = '/contact', etc.
+        href_parsed = urlparse(href)
+        if len(href_parsed.scheme) < 1:
+            href = urljoin(url,href)
+        ipos = href.find('#')
+        if ( ipos > 1 ) : href = href[:ipos]
+        if ( href.endswith('.png') or href.endswith('.jpg') or href.endswith('.gif') ) : continue
+        if ( href.endswith('/') ) : href = href[:-1]
+        
+        # check if the url is already in Webs
+        found = False
+        for web in websites:
+            if href.startswith(web):
+                found = True
+                break
+        if not found: continue
+
+        ## insert this href into Pages
+        cur.execute('INSERT OR IGNORE INTO Pages (url, html, error) VALUES (?, NULL, 1.0)',(href,))
+        cur.execute('SELECT id from Pages WHERE url = ? LIMIT 1',(href,))
+        try:
+            to_id = cur.fetchone()[0]
+        except:
+            print('Could not get the id of this outlink url')
+            continue
+        ## insert into Links table
+        cur.execute('INSERT OR INGORE INTO Links (from_id, to_id) VALUES (?, ?)',(from_id, to_id))
+
+conn.commit()
+print('Program stop, successfully finished page crawling.')
