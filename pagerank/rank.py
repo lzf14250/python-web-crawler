@@ -79,6 +79,7 @@ else:
             continue
     
     ## store the results into database
+    cur.execute('UPDATE Pages SET old_rank = new_rank')
     for i in range(len(id_rank_df)):
         url_id = id_rank_df.iloc[i]['id']
         rank = id_rank_df.iloc[i]['rank']
