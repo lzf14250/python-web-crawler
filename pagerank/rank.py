@@ -17,10 +17,10 @@ beta = 0.85 ## dumping factor used in pagerank
 try:
     cur.execute('SELECT from_id,to_id FROM Links LIMIT 1')
 except:
-    print('Failed to get links from database Links.')
+    print('Failed to get links from table Links.')
 
 if cur is None:
-    print('Nothing in database Links, run crawler.py to get links.')
+    print('Nothing in table Links, run crawler.py to get links.')
     cur.close()
 else:
     many = input('Enter the maximum number of iterations(default 10): ')
