@@ -15,7 +15,7 @@ cur = conn.cursor()
 cur.executescript('''
 CREATE TABLE IF NOT EXISTS Pages(
     id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE,
-    html TEXT, error INTEGER, new_rank REAL
+    html TEXT, error INTEGER, old_rank REAL, new_rank REAL
 );
 
 CREATE TABLE IF NOT EXISTS Links(
