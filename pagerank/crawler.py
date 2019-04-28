@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Webs(
 cur.execute('SELECT id,url FROM Pages ORDER BY id LIMIT 1')
 result = cur.fetchone()
 if result is not None:
-    print('there already exists a pagerank application')
+    print('there already exists a pagerank application, run reset.py to start a new pagerank')
 else:
     url = input('Enter a new url to get start pagerank: ')
     ## use the default if input nothing
